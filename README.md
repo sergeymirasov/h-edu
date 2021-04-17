@@ -19,7 +19,7 @@
     <li>LAMP/LEMP/FAMP/FEMP.</li>
 	<li>HTML, CSS, JavaScript, React</li>
 	<li>Python, Django</li>
-	<li>LESS, styled-components/li>
+	<li>LESS, styled-components</li>
 	<li>Webpack, Babel</li>
 	<li>Git</li>
   
