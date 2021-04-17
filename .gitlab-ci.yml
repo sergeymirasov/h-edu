@@ -1,0 +1,28 @@
+stages:
+  - deploy
+
+.deploy:
+  image: docker/compose
+  stage: deploy
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/docker-cert"
+  before_script:
+    - mkdir -p /docker-cert
+    - echo "$DOCKER_CA_CERT" > /docker-cert/ca.pem
+    - echo "$DOCKER_CERT" > /docker-cert/cert.pem
+    - echo "$DOCKER_KEY" > /docker-cert/key.pem
+    - cat /docker-cert/ca.pem
+    - cat /docker-cert/cert.pem
+    - cat /docker-cert/key.pem
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+deploy to production:
+  extends: .deploy
+  environment: production
+  script:
+    - docker-compose -p prof_education -f docker-compose.yml -f docker-compose.production.yml build
+    - docker-compose -p prof_education -f docker-compose.yml -f docker-compose.production.yml pull
+    - docker-compose -p prof_education -f docker-compose.yml -f docker-compose.production.yml run django python manage.py migrate
+    - docker-compose -p prof_education -f docker-compose.yml -f docker-compose.production.yml up -d

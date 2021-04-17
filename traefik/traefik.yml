@@ -1,0 +1,54 @@
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    # http
+    address: ":80"
+
+http:
+  routers:
+    django:
+      rule: |
+        Host(`{{ env "PROF_DOMAIN" }}`) && 
+        (PathPrefix(`/admin`) || PathPrefix(`/api`) || PathPrefix(`/uploads`))
+      entryPoints:
+        - web
+      middlewares:
+        - csrf
+      service: django
+    web:
+      rule: Host(`{{ env "PROF_DOMAIN" }}`)
+      entryPoints:
+        - web
+      middlewares:
+        - csrf
+      service: web
+
+  middlewares:
+    csrf:
+      # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
+      # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
+      headers:
+        hostsProxyHeaders: ["X-CSRFToken"]
+
+  services:
+    django:
+      loadBalancer:
+        servers:
+          - url: http://django:8000
+    web:
+      loadBalancer:
+        servers:
+          - url: http://web:80
+    
+
+providers:
+  # https://docs.traefik.io/master/providers/file/
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true
+
+metrics:
+  prometheus:
+    entryPoint: metrics

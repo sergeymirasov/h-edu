@@ -1,0 +1,32 @@
+stages:
+  - build
+  - deploy
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+  BUILD_TAG: $CI_REGISTRY_IMAGE:build
+
+build:
+  image: docker:19.03.12
+  stage: build
+  only:
+    - master
+  services:
+    - docker:19.03.12-dind
+  script:
+    - docker pull $BUILD_TAG || true
+    - docker pull $IMAGE_TAG || true
+    - docker build --target build  --cache-from=$BUILD_TAG --tag=$BUILD_TAG .
+    - docker build --target runtime --cache-from=$BUILD_TAG --cache-from=$IMAGE_TAG --tag=$IMAGE_TAG .
+    - docker push $BUILD_TAG
+    - docker push $IMAGE_TAG
+deploy:
+  stage: deploy
+  only:
+    - master
+  trigger:
+    project: prof-education/infra
+    strategy: depend

@@ -1,0 +1,48 @@
+version: "3"
+
+volumes:
+  postgres-data:
+  traefik-data:
+
+services:
+  django:
+    build:
+      context: ./django
+    command: /start
+    restart: always
+    env_file: ./envs/local.env
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:12.4-alpine
+    restart: always
+    env_file: ./envs/local.env
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:6.0-alpine
+    restart: always
+    env_file: ./envs/local.env
+  
+  web:
+    build:
+      context: ./web
+    restart: always
+    env_file: ./envs/local.env
+  
+  traefik:
+    build:
+      context: ./traefik
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+      - web
+    volumes:
+    - traefik-data:/etc/traefik/acme
+    env_file: ./envs/local.env
