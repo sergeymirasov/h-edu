@@ -58,6 +58,12 @@ docker-compose up
 docker-compose run django python manage.py migrate
 ~~~
 
+### Создание админ пользователя
+
+~~~
+docker-compose run django python manage.py createsuperuser
+~~~
+
 РАЗРАБОТЧИКИ
 
 <h4>Мирасов Сергей (Frontend) https://t.me/newbornfrontender</h4>
