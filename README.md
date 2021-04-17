@@ -16,14 +16,12 @@
  </ul>
 <h4>Основной стек технологий:</h4>
 <ul>
-    <li>LAMP/LEMP/FAMP/FEMP.</li>
-	<li>HTML, CSS, JavaScript, React</li>
-	<li>Python, Django</li>
-	<li>LESS, styled-components</li>
-	<li>Webpack, Babel</li>
-	<li>Git</li>
-  
- </ul>
+  <li>HTML, CSS, JavaScript, React</li>
+  <li>Python, Django</li>
+  <li>LESS, styled-components</li>
+  <li>Webpack, Babel</li>
+  <li>Git</li>
+</ul>
 <h4>Демо</h4>
 <p>Демо сервиса доступно по адресу: http://prof.laitprojects.site/auth/login </p>
 <p>Реквизиты тестового пользователя: логин: <b>admin</b>, пароль: <b>qwe123098</b></p>
