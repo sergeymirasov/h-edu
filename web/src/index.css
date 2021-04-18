@@ -1,2 +1,3 @@
-@import './styles/libs';
 @import './styles/fonts';
+@import './styles/libs';
+@import './styles/common';

@@ -29,7 +29,7 @@ export const Login = () => {
 
   useEffect(() => {
     if (token) {
-      history.push('/personal/application');
+      history.push('/personal/report');
     }
   }, [history, token]);
 

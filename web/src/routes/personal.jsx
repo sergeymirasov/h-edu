@@ -1,13 +1,13 @@
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 
-import { Application as ApplicationPage } from '../pages/personal/application';
+import { Report as ReportPage } from '../pages/personal/report';
 
 export const Personal = () => {
-  const { url } = useRouteMatch();
-
   return (
     <Switch>
-      <Route path={`${url}/application`} component={ApplicationPage} />
+      <Route path="/personal/report" component={ReportPage} />
+
+      <Redirect exact from="/personal" to="/personal/report" />
     </Switch>
   );
 };

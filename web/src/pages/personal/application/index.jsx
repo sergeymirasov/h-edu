@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Input, Form, Row, Col, Select, DatePicker, Button } from 'antd';
 import { Fragment } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -16,7 +15,6 @@ export const Application = () => {
 
   const onFinish = (values) => {
     console.log(values);
-    // console.log(moment(values.birth_date).format('YYYY-MM-DD'));
   };
 
   const onFinishFailed = (info) => {

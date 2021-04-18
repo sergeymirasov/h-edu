@@ -1,1 +1,8 @@
-@import 'sanitize.css';
+.ant-layout {
+  background: #fff;
+}
+
+.ant-layout-content {
+  background: #fff;
+  margin-top: 60px;
+}

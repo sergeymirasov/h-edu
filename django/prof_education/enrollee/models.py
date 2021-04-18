@@ -1,8 +1,19 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import ExpressionWrapper, F, Value
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from prof_education.utils.choices import count_max_length
+
+
+class EnrolleeQuerySet(models.QuerySet):
+    def with_age(self):
+        return self.annotate(
+            age=ExpressionWrapper(
+                Value(timezone.now().date().year) - F("birth_date__year"),
+                output_field=models.IntegerField(),
+            )
+        )
 
 
 class Enrollee(models.Model):
@@ -10,11 +21,11 @@ class Enrollee(models.Model):
     last_name = models.CharField(_("Фамилия"), max_length=128)
     middle_name = models.CharField(_("Отчество"), max_length=128)
     birth_date = models.DateField(
-        _("Дата рождения"), auto_now=False, auto_now_add=False
+        _("Дата рождения"), auto_now=False, auto_now_add=False, db_index=True
     )
     birth_place = models.CharField(_("Место рождения"), max_length=128)
     # fixme: более точные гражданства, возможно из списка
-    citizenship = models.CharField(_("Российская Федерация"), max_length=128)
+    citizenship = models.CharField(_("Гражданство"), max_length=128)
     passport = models.OneToOneField(
         "EnrolleePassport", verbose_name=_("Паспорт"), on_delete=models.CASCADE
     )
@@ -34,6 +45,7 @@ class Enrollee(models.Model):
         "organizations.EducationOrg",
         verbose_name=_("Образовательная организация"),
         on_delete=models.CASCADE,
+        db_index=True,
     )
 
     class Grades(models.IntegerChoices):
@@ -45,7 +57,7 @@ class Enrollee(models.Model):
         higher = 5, "Высшее"
 
     grade = models.PositiveSmallIntegerField(
-        _("Уровень образование"), choices=Grades.choices
+        _("Уровень образование"), choices=Grades.choices, db_index=True
     )
     education_doc = models.OneToOneField(
         "EducationDoc",
@@ -53,15 +65,19 @@ class Enrollee(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+        db_index=True,
     )
-    english = models.BooleanField(_("Английский язык"))
-    has_goal_contract = models.BooleanField(_("Наличие договора о целевом обучении"))
+    english = models.BooleanField(_("Английский язык"), db_index=True)
+    has_goal_contract = models.BooleanField(
+        _("Наличие договора о целевом обучении"), db_index=True
+    )
     gos_olympiad_status = models.OneToOneField(
         "GosOlympiadStatus",
         verbose_name=_("Участие в государственных олимпиадах"),
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+        db_index=True,
     )
     wsr_olympiad_status = models.OneToOneField(
         "WsrOlympiadStatus",
@@ -69,6 +85,7 @@ class Enrollee(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+        db_index=True,
     )
     abylimpix_status = models.OneToOneField(
         "AbylimpixStatus",
@@ -76,13 +93,15 @@ class Enrollee(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
+        db_index=True,
     )
-    need_residence = models.BooleanField(_("Общежитие"))
+    need_residence = models.BooleanField(_("Общежитие"), db_index=True)
     is_orphan = models.BooleanField(
-        _("Дети-сироты, дети, оставшиеся без попечения родителей, лица из их числа")
+        _("Дети-сироты, дети, оставшиеся без попечения родителей, лица из их числа"),
+        db_index=True,
     )
-    is_handicapped = models.BooleanField(_("Инвалиды"))
-    is_ovz = models.BooleanField(_("Лица с ОВЗ (имеется ПМПК)"))
+    is_handicapped = models.BooleanField(_("Инвалиды"), db_index=True)
+    is_ovz = models.BooleanField(_("Лица с ОВЗ (имеется ПМПК)"), db_index=True)
 
     choreography_doc = models.CharField(
         _("Хореография (подтверждающий документ)"),
@@ -141,10 +160,33 @@ class Enrollee(models.Model):
         _("Дата подачи заявления"), default=timezone.now, editable=False
     )
 
+    class Sexes(models.IntegerChoices):
+        male = 0, "Мужской"
+        female = 1, "Женский"
+
+    sex = models.PositiveSmallIntegerField("Пол", choices=Sexes.choices, db_index=True)
+
+    class Statuses(models.TextChoices):
+        enrollee = "enrollee", "Абитуриент"
+        student = "student", "Студент"
+        rejected = "rejected", "Не поступил"
+
+    status = models.CharField(
+        "Статус",
+        default=Statuses.enrollee,
+        choices=Statuses.choices,
+        max_length=count_max_length(Statuses),
+    )
+
+    objects = EnrolleeQuerySet.as_manager()
+
     class Meta:
         verbose_name = "Абитуриент"
         verbose_name_plural = "Абитуриенты"
         ordering = ("-application_dt",)
+
+    def __str__(self):
+        return f"{self.last_name} {self.first_name} {self.middle_name}"
 
 
 class EnrolleePassport(models.Model):
@@ -159,11 +201,12 @@ class EnrolleePassport(models.Model):
 
 
 class EnrolleeSpecialization(models.Model):
-    priority = models.SmallIntegerField(_("Приоритет"))
+    priority = models.SmallIntegerField(_("Приоритет"), db_index=True)
     specialization = models.ForeignKey(
         "specs.EducationDirection",
         verbose_name=_("Специализация"),
         on_delete=models.CASCADE,
+        db_index=True,
     )
 
     class EducationForms(models.TextChoices):
@@ -191,7 +234,7 @@ class EnrolleeSpecialization(models.Model):
 
 class GraduatedInstitution(models.Model):
     graduated_at = models.CharField(_("Год окончания"), max_length=4)
-    insitution = models.CharField(_("Учреждение"), max_length=256)
+    institution = models.CharField(_("Учреждение"), max_length=256)
 
     class Meta:
         verbose_name = "Оконченное учебное заведение"
@@ -292,6 +335,7 @@ class EducationDoc(models.Model):
         _("Тип"), max_length=count_max_length(Types), choices=Types.choices
     )
     num = models.CharField(_("Номер"), max_length=50)
+    grade = models.PositiveSmallIntegerField(_("Оценка"), db_index=True)
 
     class Meta:
         verbose_name = "Документ об образовании"

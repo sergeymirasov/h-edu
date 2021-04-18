@@ -4,6 +4,13 @@ from django.utils.translation import gettext_lazy as _
 
 class EducationOrg(models.Model):
     name = models.CharField(_("Наименование"), max_length=128)
+    region = models.ForeignKey(
+        "regions.Region",
+        verbose_name=_("Регион"),
+        on_delete=models.CASCADE,
+        null=True,
+        db_index=True,
+    )
 
     class Meta:
         verbose_name = "Образовательное учреждение"

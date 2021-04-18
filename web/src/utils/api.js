@@ -2,8 +2,9 @@ import axios from 'axios';
 
 import { $token } from '../models/user';
 
+export const baseURL = 'http://prof.laitprojects.site/api/';
 export const api = axios.create({
-  baseURL: 'http://prof.laitprojects.site/api/',
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {

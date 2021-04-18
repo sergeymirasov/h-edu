@@ -59,6 +59,10 @@ LOCAL_APPS = [
     "prof_education.enrollee",
     "prof_education.organizations",
     "prof_education.specs",
+    "prof_education.reports",
+    "prof_education.regions",
+    "prof_education.students",
+    "prof_education.graduates",
 ]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS

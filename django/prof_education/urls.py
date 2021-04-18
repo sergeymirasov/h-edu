@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/auth/", include("djoser.urls.authtoken")),
     path("api/enrollees/", include("prof_education.enrollee.urls")),
     path("api/specializations/", include("prof_education.specs.urls")),
+    path("api/reports/", include("prof_education.reports.urls")),
 ]
 
 if settings.DEBUG:

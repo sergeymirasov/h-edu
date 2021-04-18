@@ -1,34 +1,22 @@
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Layout } from 'antd';
-import { useStore } from 'effector-react';
 
-import { Auth as AuthRoute } from './auth';
-import { Personal as PersonalRoute } from './personal';
-import { Guard } from './components/guard';
-import { $token } from '../models/user';
+import { Header } from '../components/header';
+import { Report as ReportRoute } from './report';
+import { Reports as ReportsPage } from '../pages/reports';
 
 export const Routes = () => {
-  const token = useStore($token);
-
   return (
     <Router>
       <Layout>
+        <Header />
+
         <Layout.Content>
           <Switch>
-            {/* <Guard
-              isAuth={token}
-              path="/personal"
-              routes={() => (
-                <Switch>
-                  <Route path="/personal" component={PersonalRoute} />
-                </Switch>
-              )}
-            /> */}
+            <Route path="/report" component={ReportRoute} />
+            <Route path="/reports" exact component={ReportsPage} />
 
-            <Route path="/personal" component={PersonalRoute} />
-            <Route path="/auth" component={AuthRoute} />
-
-            <Redirect exact from="/" to="/auth" />
+            <Redirect exact from="/" to="/report" />
           </Switch>
         </Layout.Content>
       </Layout>

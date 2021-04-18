@@ -21,3 +21,4 @@ djangorestframework
 django-cors-headers
 drf_spectacular
 djoser
+tablib[xlsx]
